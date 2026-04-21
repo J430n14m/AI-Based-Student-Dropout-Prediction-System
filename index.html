@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Dropout Counselor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="form-group">
+        <h2>Dropout Risk Assessment</h2>
+        <p>Enter student details from your CSV data:</p>
+        
+        <input type="number" id="sem2_app" placeholder="2nd Sem Approved Units (e.g. 0-10)">
+        <input type="number" id="sem2_grade" placeholder="2nd Sem Grade (0-20)">
+        <input type="number" id="sem1_app" placeholder="1st Sem Approved Units">
+        <input type="number" id="sem1_grade" placeholder="1st Sem Grade">
+        <select id="tuition">
+            <option value="1">Tuition Fees Up to Date? Yes</option>
+            <option value="0">No</option>
+        </select>
+        <input type="number" id="age" placeholder="Age at Enrollment">
+        
+        <button onclick="predict()">Generate Prediction</button>
+        
+        <div id="result" style="margin-top:20px; display:none;">
+            <div id="risk-score" style="font-size: 24px;"></div>
+            <p id="counseling-advice" style="font-style: italic; color: #555;"></p>
+        </div>
+    </div>
+
+    <script>
+        async function predict() {
+            const features = [
+                parseFloat(document.getElementById('sem2_app').value),
+                parseFloat(document.getElementById('sem2_grade').value),
+                parseFloat(document.getElementById('sem1_app').value),
+                parseFloat(document.getElementById('sem1_grade').value),
+                parseFloat(document.getElementById('tuition').value),
+                parseFloat(document.getElementById('age').value)
+            ];
+
+            const response = await fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({features: features})
+            });
+            
+            const result = await response.json();
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('risk-score').innerText = `Risk Level: ${result.probability}%`;
+            document.getElementById('counseling-advice').innerText = `Counselor Note: ${result.advice}`;
+        }
+    </script>
+</body>
+</html>
